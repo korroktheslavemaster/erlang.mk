@@ -20,10 +20,18 @@ help::
 
 # Plugin-specific targets.
 
+ifndef eunit_global_setup.erl
+define eunit_global_setup.erl
+	EunitGlobalSetup = fun () -> ok end,
+	EunitGlobalTeardown = fun (_) -> ok end,
+endef
+endif
+
 define eunit.erl
 	$(call cover.erl)
+	$(call eunit_global_setup.erl)
 	CoverSetup(),
-	case eunit:test($1, [$(EUNIT_OPTS)]) of
+	case eunit:test({setup, EunitGlobalSetup, EunitGlobalTeardown, $1}, [$(EUNIT_OPTS)]) of
 		ok -> ok;
 		error -> halt(2)
 	end,
